@@ -1,0 +1,64 @@
+server:
+  #shiro timeout ms
+  session-timeout: 86400000
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    #日志级别
+    root: debug
+    com.piglet: debug
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1/piglet?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+    initialSize: 10
+    minIdle: 10
+    maxActive: 200
+    # 配置获取连接等待超时的时间
+    maxWait: 60000
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    # 配置监控统计拦截的filters
+    filters: stat,wall,slf4j
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  thymeleaf:
+    cache: false
+  resources:
+          static-locations: classpath:/static/
+
+
+#mybatis配置
+mybatis-plus:
+  mapper-locations: mybatis/*Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.piglet.domain
+  global-config:
+      #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+      id-type: 0
+
+
+socketio:
+  host: 192.168.1.105
+  port: 8089
+  maxFramePayloadLength: 1048576  # 设置最大每帧处理数据的长度，防止他人利用大数据来攻击服务器
+  maxHttpContentLength: 1048576   # 设置http交互最大内容长度
+  bossCount: 1                     # socket连接数大小（如只监听一个端口boss线程组为1即可）
+  workCount: 100
+  allowCustomRequests: true
+  upgradeTimeout: 1000000         # 协议升级超时时间（毫秒），默认10秒。HTTP握手升级为ws协议超时时间
+  pingTimeout: 6000000            # Ping消息超时时间（毫秒），默认60秒，这个时间间隔内没有接收到心跳消息就会发送超时事件
+  pingInterval: 25000             # Ping消息间隔（毫秒），默认25秒。客户端向服务器发送一条心跳消息间隔

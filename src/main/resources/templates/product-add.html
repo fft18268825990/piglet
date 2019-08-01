@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+    
+    <head>
+        <meta charset="UTF-8">
+        <title>欢迎页面-X-admin2.2</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+        <link rel="stylesheet" href="./css/font.css">
+        <link rel="stylesheet" href="./css/xadmin.css">
+        <script type="text/javascript" src="/js/jquery.min.js"></script>
+        <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
+        <script type="text/javascript" src="./js/xadmin.js"></script>
+        <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="layui-fluid">
+            <div class="layui-row">
+                <form id="signupForm" class="layui-form">
+                  <div class="layui-form-item">
+                      <label for="sku" class="layui-form-label">
+                          <span class="x-red">*</span>sku
+                      </label>
+                      <div class="layui-input-inline">
+                          <input type="text" id="sku" name="sku"
+                          autocomplete="off" class="layui-input">
+                      </div>
+                  </div>
+                  <div class="layui-form-item">
+
+                      <button id="savebtn" class="layui-btn" type="submit">
+                          保存
+                      </button>
+
+                      <label for="reset" class="layui-form-label">
+
+                      </label>
+                      <button  type="reset" id="reset" class="layui-btn" style="margin-left: 50px">
+                          重置
+                      </button>
+                  </div>
+              </form>
+            </div>
+        </div>
+        <script>
+            var validator;
+            var layer;
+
+            layui.use(['form', 'layer'], function() {
+                layer = layui.layer;
+                validateRule();
+            });
+
+            $.validator.setDefaults({
+                submitHandler : function() {
+                    save();
+                }
+            });
+            function save(){
+                $.ajax({
+                    cache : true,
+                    type : "POST",
+                    url : "/savePro",
+                    data : $('#signupForm').serialize(), // 你的formid
+                    async : false,
+                    error : function(request) {
+                        layer.alert("网络超时");
+                    },
+                    success : function(data) {
+                        if (data.code == 0) {
+                            layer.alert("添加成功", {
+                                    icon: 6
+                                },
+                                function() {
+                                    //关闭当前frame
+                                    xadmin.close();
+
+                                    //可以对当前进行刷新
+                                    window.parent.loadTable();
+                                });
+                            return false;
+                        } else {
+                            layer.msg(data.msg)
+                        }
+                    }
+                });
+            }
+            function validateRule(){
+
+                jQuery.validator.addMethod("skuIsCreated", function(value, element) {
+                    var flag;
+
+                    $.ajax({
+                        type : "GET",
+                        url : "/proSelectCount",
+                        data : {sku : $('#sku').val()},
+                        async : false,
+                        success : function(data) {
+                            flag = data>0;
+                        }
+                    });
+                    return !flag;
+
+                }, "该sku已存在");
+
+
+
+                validator = $("#signupForm").validate({
+                    rules : {
+                        sku : {
+                            required : true,
+                            skuIsCreated : true
+                        }
+                    },
+                    messages : {
+                        sku : {
+                            required : "请输入sku",
+                            skuIsCreated : "该sku已存在"
+                        }
+                    }
+                })
+            }
+        </script>
+    </body>
+</html>

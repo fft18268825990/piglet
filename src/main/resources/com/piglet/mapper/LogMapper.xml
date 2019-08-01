@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.piglet.mapper.LogMapper">
+    <select id="logList" resultType="java.util.Map">
+        SELECT l.log_id as logId,
+        l.content as content,
+        l.create_time as createTime,
+        l.create_person as createPerson,
+        u.realname as realname,
+        l.file_name as fileName
+        FROM result_log l
+        LEFT JOIN user u on l.create_person = u.user_id
+        where l.del_flag = 0
+        ORDER BY l.create_time desc
+        <if test="offset != null and limit != null">
+            limit ${offset}, ${limit}
+        </if>
+    </select>
+
+    <select id="logCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) from result_log
+        where del_flag = 0
+    </select>
+
+    <update id="edit" parameterType="java.util.Map">
+        update result_log rl set
+        <if test="flag == 'delLog'">rl.del_flag = 1</if>
+        where rl.log_id = #{logId}
+    </update>
+</mapper>
